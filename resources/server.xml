@@ -1,0 +1,77 @@
+<server description="new server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>javaee-7.0</feature>
+        <feature>localConnector-1.0</feature>
+        <feature>adminCenter-1.0</feature>
+		<feature>appSecurity-2.0</feature>
+    </featureManager>
+
+	<!-- This template enables security. To get the full use of all the capabilities, a keystore and user registry are required. -->
+	
+	<!-- For the keystore, default keys are generated and stored in a keystore. To provide the keystore password, generate an 
+	     encoded password using bin/securityUtility encode and add it below in the password attribute of the keyStore element. 
+	     Then uncomment the keyStore element. -->
+	
+	<!--For a user registry configuration, configure your user registry. For example, configure a basic user registry using the
+	    basicRegistry element. Specify your own user name below in the name attribute of the user element. For the password, 
+	    generate an encoded password using bin/securityUtility encode and add it in the password attribute of the user element. 
+	    Then uncomment the user element. -->
+
+    <!-- To access this server from a remote client add a host attribute to the following element, e.g. host="*" -->
+    <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"/>
+                  
+    <!-- Automatically expand WAR files and EAR files -->
+	<applicationManager autoExpand="true"/>
+
+    <applicationMonitor updateTrigger="mbean"/>
+
+    <keyStore id="defaultKeyStore" password="{xor}GTYzOhE6Kw=="/>
+
+    <basicRegistry id="basic" realm="BasicRealm">
+        <user name="p8admin" password="{xor}OTYzOjE6Kw=="/>
+    </basicRegistry>
+
+    <remoteFileAccess>
+      <writeDir>${server.config.dir}</writeDir>
+    </remoteFileAccess>
+
+    <webApplication id="HelloLiberty" location="HelloLiberty.war" name="HelloLiberty"/>
+
+    <enterpriseApplication id="HelloLibertyEAR" location="HelloLibertyEAR.ear" name="HelloLibertyEAR"/>
+
+    <!-- External jars -->
+	<library id="3ptLibrary">
+		<fileset dir="C:/p8libs/sqljdbc4" includes="sqljdbc4.jar" />
+		<fileset dir="C:/p8libs/icn_203" includes="jace.jar" />
+        <fileset dir="C:/p8libs/icn_203" includes="log4j-1.2.13.jar" />
+        <fileset dir="C:/p8libs/icn_203" includes="pe.jar" />
+        <fileset dir="C:/p8libs/icn_203" includes="stax-api.jar" />
+        <fileset dir="C:/p8libs/icn_203" includes="xlxpScanner.jar" />
+        <fileset dir="C:/p8libs/icn_203" includes="xlxpScannerUtils.jar" />
+    </library>
+
+    <!-- ICN Datasource -->
+	<dataSource id="icnDs" jndiName="jdbc/mssqlserver">
+		<jdbcDriver libraryRef="sqljdbcLib"/>
+		<properties.microsoft.sqlserver 
+			databaseName="ECMClientDS" 
+			serverName="ecmdemo1" portNumber="1433"
+			authenticationScheme="NativeAuthentication" />
+	</dataSource>
+
+	<!-- CE JAAS -->
+	<jaasLoginModule 
+		id="wsiLoginModule" 
+		className="com.filenet.api.util.WSILoginModule" 
+		controlFlag="REQUIRED" libraryRef="3ptLibrary" />
+	<jaasLoginContextEntry 
+		id="Navigator" 
+		name="Navigator" 
+		loginModuleRef="wsiLoginModule, hashtable, userNameAndPassword, certificate, token" />
+	<jaasLoginContextEntry 
+		id="FileNetP8WSI" 
+		name="FileNetP8WSI" loginModuleRef="wsiLoginModule, hashtable, userNameAndPassword, certificate, token" />
+
+</server>
